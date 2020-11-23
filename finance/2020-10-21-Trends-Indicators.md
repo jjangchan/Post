@@ -1,4 +1,94 @@
-# 추세 지표(Trends Indicator) 
+추세 지표(Trends Indicator) 
+
+
+
+## 방향성지수(DMI,Directional Movement Index)
+
+> __신뢰도__ ★★★★
+>
+> __안정성__ ★★★
+>
+> __민감도__ ★★★
+>
+> __기간__ 중,장기 지표
+
+
+
+__시장의 방향성과 추세의 강도를 계랑화한 지표이다. ADX와 병행하여 사용하면 더욱 신뢰성을 높이게 된다.__
+
+
+
+#### 1. 계산법
+
+* DM(Directional Movement)
+
+$$
+\bigtriangleup High=금일의고점-전일의고점 \\
+\bigtriangleup Low = 전일의저점-금일의저점 \\
+　
+\\
+\begin{align} 
+1.
+& \bigtriangleup High \ ,\bigtriangleup Low <0 \ or \ \bigtriangleup High= \bigtriangleup low, \\
+& Plus \ DM=0 \\
+& minus \ DM=0 \\
+2.
+& \bigtriangleup High > \bigtriangleup Low, \\
+& Plus \ DM = \bigtriangleup High \\
+& minus \ DM = 0 \\
+3.
+& \bigtriangleup High < \bigtriangleup Low, \\
+& Plus \ DM=0 \\
+& minus \ DM=\bigtriangleup Low
+\end{align}
+$$
+
+* True Rage
+
+$$
+True \ High = 당일자 \ 최고점과 \ 전일 \ 종가 \ 중에서 \ 높은 \ 것 \\
+True \ Low = 당일자 \ 최저점과 \ 전일 \ 종가 \ 중에서 \ 낮은 \ 것 \\
+TR(True \ Range)=True \ High-True \ Low
+$$
+
+* +DI,-DI
+
+$$
++DI = \frac{EMA_{+DM}}{EMA_{TR}}\times100 \\
+-DI = \frac{EMA_{-DM}}{EMA_{TR}}\times10
+$$
+
+
+
+## 방향성지표(DX,Directional Index)
+
+> __신뢰도__ ★★★
+>
+> __안정성__ ★★★
+>
+> __민감도__ ★★
+>
+> __기간__ 중,장기 지표
+
+
+
+__+DI 와 -DI가 교차하는 시점은 상승추세나 하락추세가 정점을 만들고 되돌아서서 어느 정도 방향을 나타낸 이후이다. 따라서 시차 문제가 발생한다.__
+
+__따라서 DX는 전반적인 추세의 강도를 종합적으로 판단하는 지표이므로 시차 문제를 다소 완화할 수 있다.__
+
+
+
+#### 1. 계산법
+
+$$
+DX=\frac{\left |plusDI-minusDI\right |}{plusDI+minusDI}\times100
+$$
+
+
+
+
+
+
 
 
 
@@ -180,6 +270,29 @@ $$
 * +100을 상향 돌파하고 100을 다시 하향 돌파시 매도 , 반대로 -100을 하향돌파하고 -100을 다시 상향 돌파하면 매수 전략
 
 
+
+## 알리게이터(Aligator) 악어
+
+
+
+__Alligator's Jaw : "악어의 턱", 일반적으로 기간은 13, 간격은 8로 설정한 Smoothed Moving Average이다.__
+
+__Alligator's Teeth : "악어의 이빨", 일반적으로 기간 8, 간격은 5로 설정한 Smoothed Moving Average이다.__
+
+__Alligator's Lips : "악어의 입술", 일반적으로 기간 5, 간격은 3로 설정한 Smoothed Moving Average이다.__
+
+__간격은 봉 앞의 미래를 예상하듯이 앞으로 뻣어 있다.__
+
+
+
+#### 1. 계산법
+
+$$
+Median \ Price= \frac{(High+Low)}{2} \\
+Allgators \ Jaw = SMMA(MedianPrice,13,8) \\
+Allgators \ Teeth=SMMA(MedianPrice, 8, 5) \\
+Allgators \ Lips=SMMA(MedianPrice, 5, 3) \\
+$$
 
 
 
