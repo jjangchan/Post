@@ -58,6 +58,18 @@ $$
 -DI = \frac{EMA_{-DM}}{EMA_{TR}}\times10
 $$
 
+#### 2. 매매 전략
+
+* +DI 가 -DI를 상향 돌파할 때 매매 신호
+* +DI 가 -DI를 하향 돌파할 때 매도 신호
+
+
+
+#### 3. ERR(Extern Point Rule) 적용 매매 전략
+
+* +DI 선이 -DI 선 상향 돌파+전고점 돌파
+* -DI 선이 +DI  선 하향 돌파+전저점 돌파
+
 
 
 ## 방향성지표(DX,Directional Index)
@@ -83,20 +95,6 @@ __따라서 DX는 전반적인 추세의 강도를 종합적으로 판단하는 
 $$
 DX=\frac{\left |plusDI-minusDI\right |}{\left |plusDI+minusDI\right |}\times100
 $$
-
-
-
-#### 2. 매매 전략
-
-* +DI 가 -DI를 상향 돌파할 때 매매 신호
-* +DI 가 -DI를 하향 돌파할 때 매도 신호
-
-
-
-#### 3. ERR(Extern Point Rule) 적용 매매 전략
-
-* +DI 선이 -DI 선 상향 돌파+전고점 돌파
-* -DI 선이 +DI  선 하향 돌파+전저점 돌파
 
 
 
