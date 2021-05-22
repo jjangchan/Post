@@ -26,3 +26,29 @@ True\ Range=True\ High-True\ Low\\
 ATR=\frac{True\ Range_{-1}\times(n-1)+True\ Range}{n}
 $$
 
+
+
+## 볼린저밴드 폭(BOllinger Band Width)
+
+> __신뢰도__ ★★★★
+>
+> __안정성__ ★★★★
+>
+> __민감도__ ★★★★
+>
+> __기간__ 단기거래나 중기,장기 거래 모두 사용 가능하다.
+
+
+
+__시장의 변동폭이 크면 매일매일 주가는 평균에서 많이 벗어날 것이고 이떄의 표준편차는 클 것이다 반대로 주가가 평균 근처에 오글오글 몰려 있다는 것은 그만큼 시장의 변동폭이 줄어들었다는 의미이며, 이떄의 표준편차는 감소할 것이다.__
+
+
+
+#### 1. 계산법
+
+$$
+Bollinger Band Widtb =Upper \ Bollinger \ Band-Lower \ Bolinger \ Band
+$$
+
+
+
