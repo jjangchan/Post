@@ -45,7 +45,7 @@ int main() {
 }
 ```
 
-디폴트 복사 생성자는 대입만 해주는 __얕은 복사(shallow copy)__를 해주므로 name(char) 에 메모리를 공유하게 된다. 따라서 소멸자가 호출하면 delete를 두번 해주면서 Block이 걸리면서 런타임 에러(이상하게 CLion에서는 에러가 안 난다..)를 발생 시킨다.
+디폴트 복사 생성자는 대입만 해주는 __얕은 복사(shallow copy)__ 를 해주므로 name(char) 에 메모리를 공유하게 된다. 따라서 소멸자가 호출하면 delete를 두번 해주면서 Block이 걸리면서 런타임 에러(이상하게 CLion에서는 에러가 안 난다..)를 발생 시킨다.
 
 
 
@@ -62,18 +62,19 @@ class PC{
 private:
     char *name;
 public:
-
+	// Constructor
     PC(const char *name){
         this->name = new char[strlen(name)+1];
         strcpy(this->name, name);
     };
-
+	
+    // Copy Constructor
     PC(const PC &pc){
         //deep copy....
         this->name = new char[strlen(pc.name)+1];
         strcpy(this->name, pc.name);
     }
-
+	// Destructor
     ~PC(){
         if(name) {
             delete[] name;
