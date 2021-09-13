@@ -1,8 +1,8 @@
-
-
-
-
 # 생성자 초기화 리스트(initializer list)
+
+
+
+## 초기화 리스트 선언
 
 ```c++
 (class name) : var1(arg1), var2(arg2) {}
@@ -16,7 +16,7 @@
 
 
 
-#### 사용하는 이유 ?
+## 초기화 리스트를 사용하는 이유 ?
 
 생성자 초기화 리스트를 사용하지 않는 경우에는 __생성을 먼저하고 대입 한다.__
 
@@ -40,6 +40,10 @@ int a = 10;
 
 
 # static 
+
+
+
+## static 이란?
 
 static 변수 또는 함수를 클래스 내부에 설정하면, 특정 객체에 종속되지 않고 클래스에 종속하게 된다. 한마디로 같은 클래스 내에서 static은 공유가 가능하다.
 
@@ -74,17 +78,28 @@ int main() {
 */
 ```
 
-
-
 위의 코드와 같이 a라는 static 변수는 클래스내에 종속 되므로 2가 출력된다. 또한 static 함수는 __{객체명}.{호출함수}__ 가 아닌 __{클래스}::{Static 함수}__ 로 호출 가능하다.
 
 
 
 # this
 
+```c++
+Marine& Marine::be_attacked(int damage_earn) {
+  hp -= damage_earn;
+  if (hp <= 0) is_dead = true;
+
+  return *this;
+}
+```
+
+`this` 는 cpp 언어 차원에서 정의되어 있는 키워드인데, 이는 객체 자신을 가리키는 포인터 역활을 한다. 실제로 모든 멤버 함수 내에서는 `this`가 정의되어 있고 클래스 안에서 정의된 함수중에서 `this`키워드가 없는 함수는 `static` 함수 뿐이다.
+
+`Marine&` (래퍼런스를 리턴하는 함수)에 대해서 아래와 같이 알아보자.
 
 
-### 레퍼런스를 리턴하는 함수 
+
+# 레퍼런스를 리턴하는 함수 
 
 ```c++
 // 레퍼런스를 리턴하는 함수
@@ -139,7 +154,7 @@ int main() {
 
 
 
-#### 1.
+**1.** 
 
 ```c++
  int& c = a.access_x();
@@ -169,9 +184,7 @@ a.x = 3;
 
 
 
-
-
-#### 2.
+**2.**
 
 ```c++
  int d = a.access_x();
@@ -183,7 +196,7 @@ a.x = 3;
 
 
 
-#### 3.
+**3.**
 
 ```C++
 // 아래는 오류 (error C2440: 'initializing' : cannot convert from 'int' to 'int &')
@@ -198,7 +211,7 @@ a.show_x();
 
 ![cpp-this-img](../img/cpp-this-img.png)
 
-#### 4.
+**4.**
 
 ```c++
 int f = a.get_x();
@@ -286,19 +299,23 @@ tihs : 0x62feb0
 x : 2
 ```
 
-#### exam1)
+
+
+**exam1)**
 
 `t1(0x62feb4)` 이 호출한 함수 리턴값은 레퍼런스가 아니므로,  리턴타입 `TestThis` 가 `*this` 을 복사하면서 복사생성자가 호출된다. 따라서 임시 객체(__0x62febc__)의 `x` 값을 차감해준다. 결과적으로  `t1(0x62feb4)` 의 `x` 값은 변환 되지 않는다.
 
-
-
-#### exam2)
+**exam2)**
 
 `t2(0x62feb0)`가 호출한 함수 리턴값은 레퍼런스 이므로,  자기 자신(0x62feb0)의  함수 `.RefThisFunction(3)` 를 한번 더 호출하면서 `x`값을 차감해주면서 최종적으로 `2` 가 출력된다.
 
 
 
 # const 함수
+
+
+
+## const 함수 선언 과 의미
 
 ```c++
 T t() const; // const function
@@ -316,10 +333,7 @@ int Marine::attack() const { return default_damage; }
 
 
 
+> 출처
+>
+>  https://modoocode.com/135
 
-
-
-
-
-
-__ref : https://modoocode.com/135__

@@ -167,7 +167,7 @@ geth --syncmode "fast" --cache=1024
 ## 테스트넷 동기화
 
 ```
-# 포트 충돌이 나므로 port를 커스텀해서 변경
+# 포트가 충돌 방지하기 위해 port를 커스텀해서 변경
 geth --rinkeby --port 31303
 ```
 
