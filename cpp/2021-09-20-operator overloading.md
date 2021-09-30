@@ -12,7 +12,7 @@
 bool operator==(Test& t){ return a == t.a;}
 ```
 
-`t1 == t2` 라고 명령을 하게 된다면 위에 `oprator==` 로 내부적으로 변환하면서 호출하여 코드를 수행하면서 반환하게 된다.
+`t1 == t2` 라고 명령을 하게 된다면 `t1.operator==(t2)` 로 내부적으로 변환되서 처리된다.
 
 ```c++
 #include <iostream>
