@@ -263,4 +263,126 @@ friend ostream& operator<<(ostream& os, const Complex& c);
 
 
 # 첨자 연산자(operator[])
+`oerator[]` 함수는 자명하게도 인자에 `int` 형을 인덱스로 받으면된다.
+```c++
+char& operator[](const int index){return string_content[index];}
+```
+위의 함수를 호출하면  `return` 받고 수정할 내용을 대입시키면 된다.
+```c++
+int main() {
+  MyString str("abcdef");
+  str[3] = 'c';
+
+  str.println();
+}
+```
+출력은 아래와 같다.
+```
+abccef
+```
+
+
+
+# 타입 변환 연산자
+
+타입 변환 연산자는 클래스의 객체를 마치 '`int` 형 변수'라고 컴파일러에게 알려준다. 
+타입 변환 연산자의 정의는 아래와 같다.
+```c++
+operator T()
+```
+주의점은 생성자 처럼 `return` type을 써주면 안된다.
+
+`int`형 `Wrapper` 클래스를 만들면 아래와 같다.
+
+```c++
+class Int{
+private:
+    int num;
+public:
+    Int(int num): num(num){}
+    Int(const Int& i): num(i.num){}
+    operator int(){return num;}
+};
+
+
+int main() {
+    Int x = 3;
+    int a = x + 4;
+
+    x = a * 2 + x + 4;
+    std::cout << x << std::endl;
+    return 1;
+}
+```
+```
+24
+```
+
+
+
+# 전위/후위 증감 연산자
+
+전위 증감 연산자는 **값이 바뀐 자기 자신**을 리턴하고, 후의 증감의 경우 **값이 바뀌기 이전의 객체**를 리턴하면 된다. 따라서 후의 증감 연산은 객체를 복사하기 때문에 속도가 전위 증감 연산자 보다 더 느리다. 
+```c++
+#include <iostream>
+
+class Test{
+private:
+    int num;
+public:
+    Test(int num): num(num){}
+    Test(const Test& i): num(i.num){}
+    Test& operator++(){
+        num++;
+        std::cout << "전위 증감 연산자 호출" << std::endl;
+        return (*this);
+    }
+
+    Test operator++(int){
+        Test temp(num);
+        num++;
+        std::cout << "후의 증감 연산자 호출" << std::endl;
+        return temp;
+    }
+
+    int getNum() const{return num;}
+};
+
+void println(const Test& t){
+    std::cout << "num : " << t.getNum() << std::endl;
+}
+
+int main() {
+    Test t(3);
+    println(++t);
+    println(t++);
+    println(t);
+    return 1;
+}
+```
+```
+전위 증감 연산자 호출
+num : 4
+후의 증감 연산자 호출
+num : 4
+num : 5
+```
+
+
+
+# 정리
+
+연산자 오버로딩에 대해 다루면서 몇 가지 중요한 포인트 들만 따로 정리해보자면;
+
+- 두 개의 동등한 객체 사이에서의 이항 연산자는 멤버 함수가 아닌 외부 함수로 오버로딩 하는 것이 좋습니다. (예를 들어 `Complex` 의 `operator+(const Complex&, const Complex&) const` 와 같이 말입니다.)
+- 두 개의 객체 사이의 이항 연산자 이지만 한 객체만 값이 바뀐다던지 등의 동등하지 않는 이항 연산자는 멤버 함수로 오버로딩 하는 것이 좋습니다. (예를 들어서 `operator+=` 는 이항 연산자 이지만 `operator+=(const Complex&)` 가 낫다)
+- 단항 연산자는 멤버 함수로 오버로딩 하는 것이 좋습니다 (예를 들어 `operator++` 의 경우 멤버 함수로 오버로딩 합니다)
+- 일부 연산자들은 반드시 멤버 함수로만 오버로딩 해야 합니다 (강좌 앞 부분 참고)
+
+
+
+
+> 출처
+>
+> https://modoocode.com/135
 
