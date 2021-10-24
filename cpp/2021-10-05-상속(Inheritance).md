@@ -612,3 +612,150 @@ a.speak();
 따라서 `Animal` 처럼,순수 가상 함수를 최소 한 개 이상 포함하고 있는 클래스는 객체를 생성할 수 없으며, 인스턴스화 시키기 위해서는 이 클래스를 상속 받는 클래스를 만들어서 모든 순수 가상 함수를 오버라이딩 해주어야만 한다.
 
 이렇게 순수 가상 함수를 최소 한개 포함하고 있는- 반드시 상속 되어야 하는 클래스를 가리켜 **추상 클래스 (abstract class)**라고 부릅니다.
+
+
+
+## 13. 다중 상속(multiple inheritance)
+
+```c++
+class A{
+public:
+    int a;
+    A(){std::cout << "A constructor" << std::endl;}
+};
+
+class B{
+public:
+    int b;
+    B(){std::cout << "B constructor" << std::endl;}
+};
+
+class C : public B, public A{
+public:
+    int c;
+    C(): A(), B(){std::cout << "C constructor" << std::endl;}
+};
+
+int main(){
+    C c;
+    c.a;
+    c.b;
+    c.c;
+    return 0;
+}
+
+```
+
+`C` 는 다중으로 `A` , `B` 를 상속 받았다. 단순하게 `C` 는 `A` , `B` 의 내용들을 사용가능하다.
+
+또한, 상속의 순서에 따라 기반 클래스의 생성자 호출이 달라진다.
+
+```c++
+class C : public A, public B
+```
+
+```
+A constructor
+B constructor
+C constructor
+```
+
+```c++
+class C : public B, public A
+```
+
+```
+B constructor
+A constructor
+C constructor
+```
+
+
+
+## 14. 다중 상속 시 주의점
+
+### 1. 기반 클래스의 이름이 같은 멤버 변수 또는 함수를 선언하면 안된다.
+
+```c++
+class A{
+public:
+    int a;
+    A(){std::cout << "A constructor" << std::endl;}
+};
+
+class B{
+public:
+    int a;
+    B(){std::cout << "B constructor" << std::endl;}
+};
+
+class C : public B, public A{
+public:
+    int c;
+    C(): A(), B(){std::cout << "C constructor" << std::endl;}
+};
+
+int main(){
+    C c;
+    c.a; //error : request for member 'a' is ambiguous
+    return 0;
+}
+```
+
+컴파일에서 모호 하다고 오류를 내린다.
+
+
+
+### 2. **다이아몬드 상속(diamond inheritance)** 혹은 공포의 다이아몬드 상속(dreadful diamond of derivation) 주의 한다.
+
+```c++
+class Human {
+  // ...
+};
+class HandsomeHuman : public Human {
+  // ...
+};
+class SmartHuman : public Human {
+  // ...
+};
+class Me : public HandsomeHuman, public SmartHuman {
+  // ...
+}
+```
+
+기반 클래스로 `Human`이 있고, `HandsomeHuman` 과 `SmartHuman` 은  `Human` 클래스를 상속 받고 있다.
+
+여기서 `Me` 라는 클래스가 `HandsomeHuman`  과 `SmartHuman` 을  둘 다 상속 받으면 다이아몬드 모양이 나온다.
+
+
+
+![Inheritance3](../img/Inheritance3.JPG)
+
+여기서 문제는 `Human` 클래스가 멤버변수 `name` 을 가지게 되면 `Human`의 파생 클래스 `HandsomeHuman` 과 `SmartHuman` 도 들어가게 되므로 내용이 중복되는 문제가 발생한다. 
+
+하지만 해결 방법이 있다.
+
+```c++
+class Human {
+ public:
+  // ...
+};
+class HandsomeHuman : public virtual Human {
+  // ...
+};
+class SmartHuman : public virtual Human {
+  // ...
+};
+class Me : public HandsomeHuman, public SmartHuman {
+  // ...
+};
+```
+
+`virtual` 로 상속 받는다면, `Me` 에서 다중 상속 시에도, 컴파일러가 언제나 `Human` 을 한 번만 포함하도록 지정할 수 있다. 참고로, 가상 상속 시에, `Me` 의 생성자에서 `HandsomeHuman` 과 `SmartHuman` 의 생성자를 호출함은 당연하고, `Human` 의 생성자 또한 호출해주어야 한다.
+
+
+
+출처
+
+> https://modoocode.com/135
+
