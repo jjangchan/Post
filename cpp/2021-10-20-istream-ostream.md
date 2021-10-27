@@ -160,3 +160,12 @@ int main() {
 ![iostream3](../img/iostream3.JPG)
 
 한 칸 전진하고 `w` 를 가리키고 리턴한다. 이때 `snextc` 함수는 스트림 위치 지정자를 건드리지 않는다.
+
+
+
+
+
+> 출처
+>
+> https://modoocode.com/135
+
