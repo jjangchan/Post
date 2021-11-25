@@ -60,8 +60,6 @@
 
 ### 추세선으로 가격 목표점을 계산하는 법
 
-
-
 ![chartpatter1](../img/chartpatter1.JPG)
 
 - A : 추세선과 가격 마지막 접점 
@@ -69,3 +67,82 @@
 - C : B에서 수직을 그려 추세선에 만나는 접점
 - D : 추세선 이탈 시점
 - 가격목표점(E) = D - (B - C)
+
+
+
+### 추세선 그리기(code)
+
+```c++
+int OnInit()
+{
+   int u_start = 600;
+   int end = 0;
+   CreateTrendLine("TEST", u_start, end);
+   return (INIT_SUCCEEDED);
+}
+
+void CreateTrendLine(const string str,
+                     int start,
+                     const int end)
+{
+   if(High[start] > High[end])
+   {
+      GetTre ndLine(str, start, end, High, 1); // downward trend line
+   } 
+   else
+   {
+      GetTrendLine(str, start, end, Low, -1); // upward trend line
+   }
+}
+
+bool GetTrendLine(const string str,
+                  int start,
+                  const int end,
+                  const double &array[],
+                  const int x)
+{
+   double extremum = array[start];
+   // Search extremum(Low or High)
+   for(int i = start-1; i >= end; i--)
+   {
+      if(array[i]*x > extremum*x)
+      {
+         extremum = array[i];
+         start = i;
+      }
+   }
+
+   int index = start-1;
+   double standard_slope = fabs(array[start] - array[start-1]) /1.0;
+   // Search gentle slope 
+   for(int i = start-2; i >= end; i--){
+      double slope = fabs(array[start]-array[i])/(double)(start-i);
+      if(slope < standard_slope)
+      {
+         index = i;
+         standard_slope = slope;
+      }
+   }
+   // create object(trend line)
+   return ObjectCreate(0, str, OBJ_TREND, 0, Time[start], array[start], Time[index], array[index]);
+}
+```
+
+
+
+### 1-2-3 추세 변환 확인 기법
+
+
+
+![chartpatter2](../img/chartpatter2.JPG)
+
+1. 상향 추세선을 그린다(최저점에서 최고점 까지 저점을 잇은 직선)
+2. 1은 이탈시점
+3. 2는 이탈하고 난 후 주가 상승 최고점
+4. 3은 1 과 2 사이의 최저점
+5. 3을 뚫고 나가면 상승추세에서 하락추세로 넘어갔다고 본다.
+
+
+
+## 지지와 저항
+
