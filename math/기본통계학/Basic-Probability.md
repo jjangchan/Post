@@ -33,13 +33,13 @@ __ex) 동전을 3번 던져 앞면(H) 이 나올 확률__
 1. 경우의 수는 $$2^3 = 8$$ 이다
 2. 모든 경우의수를 표로 나타내면 아래와 같다.
 
-<img src="C:\Users\momantic03\workspace\post\img\prob.JPG" align="left">
+<img src="../../img/prob.JPG" align="left">
 
 
 
 ### 확률함수
 
-<img src="C:\Users\momantic03\workspace\post\img\prob2.JPG" align="left">
+<img src="../../img/\prob2.JPG" align="left">
 
 ```python
 import operator as op
@@ -63,7 +63,7 @@ def BPD(n, x, p):
 
 ### 특성(기대값, 분산, 표준편차)
 
-<img src="C:\Users\momantic03\workspace\post\img\prob3.JPG" align="left">
+<img src="../../img/prob3.JPG" align="left">
 
 ```python
 import math
@@ -98,7 +98,7 @@ def SD(n, p):
 
 ### 확률함수
 
-<img src="C:\Users\momantic03\workspace\post\img\prob4.JPG" align="left">
+<img src="../../img/prob4.JPG" align="left">
 
 ```python
 import math
@@ -114,7 +114,7 @@ def PD(u, x):
 
 ### 특성(기대값,분산, 표준편차)
 
-<img src="C:\Users\momantic03\workspace\post\img\prob5.JPG" align="left">
+<img src="../../img/prob5.JPG" align="left">
 
 ```python
 import math
@@ -153,7 +153,7 @@ def SD(n, p):
 - 확률밀도함수는 언제나 (+)값을 갖는다. 즉 f(x)>=0 이다.
 - 확률밀도함수 아래에 있는 전체의 면적은 언제나 '1'이다. 즉 p(-∞ <= X <= ∞)=1 이다.
 
-<img src="C:\Users\momantic03\workspace\post\img\prob6.JPG" align="left">
+<img src="../../img/prob6.JPG" align="left">
 
 
 
@@ -163,7 +163,7 @@ def SD(n, p):
 
 ### 확률밀도함수
 
-<img src="C:\Users\momantic03\workspace\post\img\prob7.JPG" align="left">
+<img src="../../img/prob7.JPG" align="left">
 
 ## 4. 정규분포
 
@@ -171,7 +171,7 @@ def SD(n, p):
 
 ### 확률밀도함수 
 
-<img src="C:\Users\momantic03\workspace\post\img\prob8.JPG">
+<img src="../../img/prob8.JPG">
 
 ### 정규분포의 특성
 
@@ -183,7 +183,7 @@ def SD(n, p):
 - 정규곡선과 x축 사이의 전체면적은 무조건 '1' 이다.
 - 분포의 평균은 정규분포의 위치를 나타내며, 표준편차는 분포의 모양을 나타낸다.
 
-<img src="C:\Users\momantic03\workspace\post\img\prob9.JPG" align="left">
+<img src="../../img/prob9.JPG" align="left">
 
 
 
@@ -197,9 +197,110 @@ def SD(n, p):
 
 확률 변수는 `Z`, 평균은 `0`, 분산이 `1` 이 되도록 표준화한 것을 의미하며, "Z~N(0,1)" 로 표현하고, 표준화 Z은 다음과 같이 구한다.
 
-<img src="C:\Users\momantic03\workspace\post\img\prob10.JPG" align="left">
+<img src="../../img/prob10.JPG" align="left">
 
 정규분포를 표준정규분포로 전환하기 위한 방법은 아래와 같다.
 
-<img src="C:\Users\momantic03\workspace\post\img\prob11.JPG" align="left">
+<img src="../../img/prob11.JPG" align="left">
+
+## 2. 확률계산 
+
+표준정규분포의 Z값에 따른 넓이만 알면 되며, 이 넓이를 표로 만든 것이 'Z-table' 이다
+
+### code
+
+```python
+import scipy.stats as stats
+
+# normal distribution to standardized Z
+# x = 관측치, u = 평균, a = 표준편차
+def GetZ(x, u, a):
+    return (x-u)/a;
+
+# 확률계산
+def ProbZ(a , b):
+    return stats.norm().cdf(b)-stats.norm().cdf(a)
+```
+
+
+
+# 4) 표본추출
+
+모집단의 전체를 조사하지 않고도 모집단의 일부인 표본을 분석하여 모집단 전체의 특성을 추론하는 것이 추리통계학(inference statistics)이며, 이러한 통계적 연구의 시작이 표본의 추출(sampling)이다.
+
+
+
+## 1. 필요성
+
+- 경제성 : 모집단 전체를 조사, 분석하는 것에 비해 그 모집단의 일부를 추출하여 관찰하는 것이 시간적으로나 경비면에서 절감을 이룰 수 있다.
+- 시간제약 : 단시간에 필요한 정보를 얻어야 하는 경우 유용하게 이용할 수 있다.
+- 무한모집단 : 모집단의 규모를 결정할 수 없을 정도로 모집단이 무한히 큰 경우에 사용
+
+
+
+## 2. 표본추출의 오류
+
+측정상의 오차, 표본추출의 오류, 해석상의 잘못 등으로 인하여 실제 모집단의 값으로부터 멀어져서 오류가 발생한다.
+
+- 표본추출오차(sampling error) : 모집단을 대표할 수 있는 전형적인 구성요소를 표본으로 선택하지 못했기 떄문에 발생하는 오류
+  - 우연하게 발생하는 오류 
+    - 해결책 : 표본 수 증가, 계획단계부터 적정 분석대상을 파악
+  - 모집단을 대표하기에 역부족인 비전형적인 구성요소를 표본으로 선택함에 따른 오류
+    - 해결책 : 계획과 기획수정, 편의(bias)를 제거
+- 비표본추출오차(non-sapling error) : 표본의 선택과는 상관없이 발생하는 오류
+  - 표본의 성격을 측정하는 방법이 부정확한 경우 발생하는 측정오차 오류
+    - 해결책 : 근본적인 원인수정이 필요
+
+
+
+## 3. 표본추출방법
+
+표본추출의 오차는 편의(bias)와 우연성(chance)에 의하여 발생, 우연에 의한 오차는 표번 크기를 증가해서 감소 시킨다.
+
+편의에 의한 오차는 다음과 같은 표본추출방법 이용한다.
+
+- 확률표본추출(probability sampling) : 동일한 기회를 제공 하는 **무작의 추출(random sapling)**
+- 비확률표본추출 : 확률추줄이 불가능하거나 비경제적일 경우에 사용하는 방법으로 연구자의 주관에 의해 표본이 선택되므로 오차를 포함하고, 편의추출과 판단추출로 구분 된다.
+  - 편의추출(convenience sampling) : 모딥단에서 연구자가 손쉽게 구할 수 있는 구성원을 선택하여 표본으로 삼는 표본추출방법
+  - 판단추출(judgement sampling) : 모집단의 성격에 대하여 어느 정도 전문지식이 있는 사람이 판단하는 방법
+
+
+
+# 5) 표본분포
+
+모집단에서 일정한 크기로 뽑을 수 있는 표본을 모두 추출하였을 때, 그 모든 표본의 특성치의 확률분포
+
+
+
+<img src="../../img/prob12.PNG" align="left">
+
+
+
+# 6) 표본평균의 표본분포
+
+표분평균은 확률변수인데, 이 확률변수인 표본평균들의 확률분포를 '표본평균의 표본분포' 라고 한다.
+
+
+
+## 1. 평균(기대값)
+
+<img src="../../img/prob13.PNG" align="left">
+
+
+
+## 2. 분산
+
+<img src="../../img/prob14.PNG" align="left">
+
+
+
+## 3. 표준편차
+
+모집단에서 평균을 선택하여 표본평균을 계산하면 두 평균 사이에 차이가 발생하게 되는데 이를 오차(error)라고 한다.
+
+따라서, **표본평균 표준편차 == 평균의 표준오차**
+
+
+
+<img src="../../img/prob15.PNG" align="left">
 
