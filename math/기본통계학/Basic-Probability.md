@@ -282,7 +282,7 @@ def ProbZ(a , b):
 
 
 
-<img src="../../img/prob12.PNG">
+<img src="../../img/prob12.png">
 
 
 
@@ -294,13 +294,13 @@ def ProbZ(a , b):
 
 ## 1. 평균(기대값)
 
-<img src="../../img/prob13.PNG" align="left">
+<img src="../../img/prob13.png">
 
 
 
 ## 2. 분산
 
-<img src="../../img/prob14.PNG">
+<img src="../../img/prob14.png">
 
 
 
@@ -312,7 +312,7 @@ def ProbZ(a , b):
 
 
 
-<img src="../../img/prob15.PNG">
+<img src="../../img/prob15.png">
 
 ## 4. code
 
@@ -519,3 +519,11 @@ n = 0
 <img src="../../img/prob27.JPG">
 
 - 신뢰구간은 신뢰도에 따라서 필요한 Z값을 정하여 추정하는 데, Z-분포표를 이용하여 이에 대응하는 Z값을 찾으면 된다. 예를 들어 90% 신뢰계수 Z는  Z = 0에서 0.45와 가장 가까운 값 Z = 1.64, 1.645, 1.65 중 하나를 사용하면 된다
+
+
+
+## 2. 모집단의 평균의 신뢰구간 추정 : α를 모르고 있는 경우
+
+표본의 표준편차를 모집단위 표준편차 대신 사용한다. 또한, 신뢰구간을 구하기 위해서는 다음과 같은 **t-분포** 를 이용한다.
+
+<img src="../../img/prob28.png">
