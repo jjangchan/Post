@@ -33,13 +33,13 @@ __ex) 동전을 3번 던져 앞면(H) 이 나올 확률__
 1. 경우의 수는 $$2^3 = 8$$ 이다
 2. 모든 경우의수를 표로 나타내면 아래와 같다.
 
-<img src="../../img/prob.JPG" align="left">
+<img src="../../img/prob.JPG">
 
 
 
 ### 확률함수
 
-<img src="../../img/\prob2.JPG" align="left">
+<img src="../../img/\prob2.JPG">
 
 ```python
 import operator as op
@@ -63,7 +63,9 @@ def BPD(n, x, p):
 
 ### 특성(기대값, 분산, 표준편차)
 
-<img src="../../img/prob3.JPG" align="left">
+
+
+<img src="../../img/prob3.JPG">
 
 ```python
 import math
@@ -98,7 +100,9 @@ def SD(n, p):
 
 ### 확률함수
 
-<img src="../../img/prob4.JPG" align="left">
+
+
+<img src="../../img/prob4.JPG">
 
 ```python
 import math
@@ -114,7 +118,9 @@ def PD(u, x):
 
 ### 특성(기대값,분산, 표준편차)
 
-<img src="../../img/prob5.JPG" align="left">
+
+
+<img src="../../img/prob5.JPG">
 
 ```python
 import math
@@ -153,7 +159,7 @@ def SD(n, p):
 - 확률밀도함수는 언제나 (+)값을 갖는다. 즉 f(x)>=0 이다.
 - 확률밀도함수 아래에 있는 전체의 면적은 언제나 '1'이다. 즉 p(-∞ <= X <= ∞)=1 이다.
 
-<img src="../../img/prob6.JPG" align="left">
+<img src="../../img/prob6.JPG">
 
 
 
@@ -163,13 +169,15 @@ def SD(n, p):
 
 ### 확률밀도함수
 
-<img src="../../img/prob7.JPG" align="left">
+<img src="../../img/prob7.JPG">
 
 ## 4. 정규분포
 
 정규분포는 정규곡선(normal curve)으로부터 유래한 분포로 가우스가 물리계측의 오차를 계산하는 과정에서 도입된 확률분포로 자연과학 뿐만 아니라 인문사회과학에서도 유용하기 이용되고 있는데, 수리적으로 라플라스(Pierre Laplace)에 의해 정립된 정규함수로부터 유래한 분포이다.
 
 ### 확률밀도함수 
+
+
 
 <img src="../../img/prob8.JPG">
 
@@ -183,7 +191,9 @@ def SD(n, p):
 - 정규곡선과 x축 사이의 전체면적은 무조건 '1' 이다.
 - 분포의 평균은 정규분포의 위치를 나타내며, 표준편차는 분포의 모양을 나타낸다.
 
-<img src="../../img/prob9.JPG" align="left">
+
+
+<img src="../../img/prob9.JPG">
 
 
 
@@ -197,11 +207,11 @@ def SD(n, p):
 
 확률 변수는 `Z`, 평균은 `0`, 분산이 `1` 이 되도록 표준화한 것을 의미하며, "Z~N(0,1)" 로 표현하고, 표준화 Z은 다음과 같이 구한다.
 
-<img src="../../img/prob10.JPG" align="left">
+<img src="../../img/prob10.JPG">
 
 정규분포를 표준정규분포로 전환하기 위한 방법은 아래와 같다.
 
-<img src="../../img/prob11.JPG" align="left">
+<img src="../../img/prob11.JPG">
 
 ## 2. 확률계산 
 
@@ -272,13 +282,13 @@ def ProbZ(a , b):
 
 
 
-<img src="../../img/prob12.PNG" align="left">
+<img src="../../img/prob12.PNG">
 
 
 
 # 6) 표본평균의 표본분포
 
-표분평균은 확률변수인데, 이 확률변수인 표본평균들의 확률분포를 '표본평균의 표본분포' 라고 한다.
+특정한 모집단에서 동일한 크기로 가능한 모든 표본을 뽑아서 각각의 표본들의 평균을 산출할 때, 그 평균들의 확률분포를 말한다. 즉 표분평균은 확률변수인데, 이 확률변수인 표본평균들의 확률분포를 '표본평균의 표본분포' 라고 한다.
 
 
 
@@ -290,7 +300,7 @@ def ProbZ(a , b):
 
 ## 2. 분산
 
-<img src="../../img/prob14.PNG" align="left">
+<img src="../../img/prob14.PNG">
 
 
 
@@ -302,5 +312,82 @@ def ProbZ(a , b):
 
 
 
-<img src="../../img/prob15.PNG" align="left">
+<img src="../../img/prob15.PNG">
+
+## 4. code
+
+```python
+from itertools import product 
+import pandas as pd
+import numpy as np
+from functools import reduce
+
+# 모집단 평균
+def Average(map_averages):
+     return reduce(lambda x,y : x+y, [key*value for key, value in map_averages.items()])
+
+# 모집단 분산
+def Var(map_averages):
+    u = Average(map_averages)
+    return reduce(lambda x,y : x+y, [pow(key-u,2)*value for key, value in map_averages.items()])
+
+# 가능 표본 조합 / 표본 평균 / 표본 추출 확률
+def Table(m, r):
+    key_list = list(m.keys())
+    df = pd.DataFrame(columns=['sample', 'sample average', 'sampling probability'])
+    for i in product(key_list, repeat=r):
+        df = df.append({'sample' : i,  'sample average' : sum(i)/len(i),'sampling probability' : reduce(lambda x,y : x*y, [m[k] for k in i])},ignore_index=True)
+    return df
+
+# 표본분포
+def SD(m, r):
+    # drop colume
+    cols = Table(m,r)[['sample average', 'sampling probability']]
+    cols.sort_values(by=['sample average'], axis=0, inplace=True)
+    array = cols.values
+    df = pd.DataFrame(columns=['X','P(X)'])
+    sum_prob = cols['sampling probability'][0]
+    # 중복된 평균 합치기
+    for i in range(1, len(array)): 
+        if array[i][0] != array[i-1][0]:
+            df = df.append({"X":array[i-1][0], "P(X)":sum_prob}, ignore_index=True)
+            sum_prob = array[i][1]
+        else :
+            sum_prob += array[i][1]
+    df = df.append({"X":array[-1][0], "P(X)":sum_prob}, ignore_index=True)
+    return df
+
+# 표본분포 평균
+def SDU(m, r):
+    sd = SD(m,r).values
+    return reduce(lambda x,y : x+y, [i[0]*i[1] for i in sd])
+
+# 표본분포 분산
+def SDV(m, r):
+    sd = SD(m, r).values
+    u = SDU(m, r)
+    return reduce(lambda x,y : x+y, [pow(i[0]-u, 2)*i[1] for i in sd])
+
+
+```
+
+
+
+## 5. 중심극한정리
+
+모집단의 분포모양과는 관계없이 평균, 분산 인 모집단에서 크기가 n인 가능한 모든 표본을 뽑을 때, 표본의 크기가 커질수록 표본평균의 표본분포는 정규분포에 접근하게 되는 현상 
+
+- 모집단이 정규분포이면 표본평균의 표본분포는 정규분포
+- 모집단이 정규분포가 아니더라도 n 값이 커지면, 표본평균의 표본분포는 정규분포에 접근
+- 표본의 크기(n)이 30이상이면 표본평균의 표본분포는 정규분포라고 본다
+
+
+
+## 6. 표본평균의 표본분포 특성
+
+1. 표본평균의 표본분포의 평균은 모집단의 평균과 같다.
+
+<img src="../../img/prob12.JPG" align='left'>
+
+	2. 표본평균의 표본분포의 표준편차 즉 표준오차는 아래와 같다.
 
