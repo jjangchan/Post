@@ -548,7 +548,7 @@ Presume(n, a, X, l)
 
 ## 2. 모집단의 평균의 신뢰구간 추정 : α를 모르고 있는 경우
 
-표본의 표준편차를 모집단위 표준편차 대신 사용한다. 또한, 신뢰구간을 구하기 위해서는 다음과 같은 **t-분포** 를 이용한다.
+표본의 표준편차를 모집단의 표준편차 대신 사용한다. 또한, 신뢰구간을 구하기 위해서는 다음과 같은 **t-분포** 를 이용한다.
 
 <img src="../../img/prob28.png">
 
@@ -735,6 +735,14 @@ Presume(n, S, X, l, u)
 
 
 
+## 3) P값(P-value)
+
+표본으로부터 계산된 검정통계량의 값이 귀무가설의 가정으로부터 얼마만큼 벗어나 있는지 그 정도를 표현한 수치로 자료로부터 관측된 유의수준을 의미한다.
+
+
+
+
+
 # 13) 분산분석
 
 여러 개의 모집단 평균을 동시에 비교하는 데 이용되는 통계적 연구방법을'분산분석(analysis of variance)' 혹은 'ANOVA'라고 한다. 분산분석은 독립변수 몇 개의 수준이나 범주로 나누고 각 수준에 따라 나누어진 집단가의 평균차를 검정하는 것이다.
@@ -871,3 +879,89 @@ F-분포표로 이용한 방법은 다음과 같다.
 <img src="../../img/prob42.JPG">
 
 F값이 3.89보다 클 확률은 0.05인데 Fco 값은 4.31 이므로 귀무가설은 유의수준 5%에서 기각 된다.
+
+
+
+## 9) 분산분석표(ANOVA)
+
+앞에서 계산한 분산분석의 결과를 표로 정리
+
+
+
+<img src="../../img/prob43.JPG">
+
+## code
+
+```python
+from functools import reduce
+import scipy.stats as stats
+import pandas as pd
+
+data = [[77,79,87,85,78],
+        [80,82,86,85,80],
+        [83,91,94,88,85]]
+
+col = row = total_aver = 0
+group_aver = []
+
+def DataProce():
+    global col
+    global row
+    global total_aver
+    col = len(data)
+    row = len(data[0])
+    # 그룹 평균 계산
+    for i in data :
+        group_aver.append(reduce(lambda x,y : x+y, i)/len(i))
+    total_aver = sum(group_aver)/col
+
+# 그룹간 제곱합
+def SSB():
+    return row*reduce(lambda x,y : x+y, [(aver - total_aver)**2 for aver in group_aver])
+
+# 그룹별 제곱합
+def SSE():
+    count = 0
+    sum = 0
+    for i in data:
+        sum += reduce(lambda x,y :x+y, [(s-group_aver[count])**2 for s in i])
+        count += 1
+    return sum
+
+# 총 제곱합
+def SST():
+    return SSB()+SSE()
+
+# 그룹간 평균 제곱
+def MSB():
+    return SSB()/(col-1)
+
+#그룹내 평균제곱
+def MSE():
+    return SSE()/(col*(row-1))
+
+# F값
+def F():
+    return MSB()/MSE()
+
+# 기각 ? 채택 ?
+def Presume(l):
+    f = stats.f(col-1, col*(row-1)).ppf(1-0.05)
+    fco = F()
+    return -1*f < fco and fco < f
+
+def ANOVATable(l):
+    DataProce()
+    print("귀무 가설 : "+str(Presume(l)))
+    print("F값 : ", F())
+    value = {'SS' :[SSB(), SSE(), SST()], 'df' : [col-1, col*(row-1), col*row-1], 'MS': [MSB(), MSE(), 0]}
+    df = pd.DataFrame(data=value,columns=['SS', 'df', 'MS'], index=['그룹간', '그룹내', '합계'])
+    return df
+
+# 유의수준
+l = 0.95 
+print(ANOVATable(l))
+
+
+```
+
