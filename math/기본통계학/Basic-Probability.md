@@ -82,6 +82,13 @@ def Var(n, p):
 def SD(n, p):
     return math.sqrt(Var(n,p))
 
+# n - 시행횟수, p - 성공확률
+n = 250 
+p = 0.4
+print("EV : ",EV(n, p))
+print("Var : ", Var(n, p))
+print("SD : ",SD(n, p))
+
 ```
 
 
@@ -112,6 +119,11 @@ def PD(u, x):
     denominator = reduce(lambda x, y: x*y, range(1, x+1, 1))
     e = pow(math.exp(1), -u)
     return (numerator/denominator)*e
+
+# u - 단위구간당 사건의 평균 발생횟수, x - 사건의 발생 수 
+u = 0.3 
+x = 2
+PD(u,x)
 ```
 
 
@@ -136,6 +148,10 @@ def Var(n, p):
 # 표준편차
 def SD(n, p):
     return math.sqrt(Var(n,p))
+
+# n - 시행횟수, p - 성공확률
+n = 0
+p = 0.3
 ```
 
 
@@ -228,8 +244,13 @@ def GetZ(x, u, a):
     return (x-u)/a;
 
 # 확률계산
-def ProbZ(a , b):
-    return stats.norm().cdf(b)-stats.norm().cdf(a)
+def ProbZ(x1 , x2):
+    return stats.norm().cdf(x2)-stats.norm().cdf(x1)
+
+# x = 관측치, u = 평균, a = 표준편차
+u = 135
+a = 50
+0.5-ProbZ(0, GetZ(150, u, a)
 ```
 
 
@@ -368,6 +389,12 @@ def SDV(m, r):
     u = SDU(m, r)
     return reduce(lambda x,y : x+y, [pow(i[0]-u, 2)*i[1] for i in sd])
 
+m = {1:1/3, 2:1/3, 3:1/3}
+r = 2
+print("Average : ", Average(m))
+print("Var : ", Var(m))
+print(Table(m, r))
+SD(m, r)
 
 ```
 
