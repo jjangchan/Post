@@ -973,7 +973,7 @@ def F():
 
 # 기각 ? 채택 ?
 def Presume(l):
-    f = stats.f(col-1, col*(row-1)).ppf(1-0.05)
+    f = stats.f(col-1, col*(row-1)).ppf(l)
     fco = F()
     return -1*f < fco and fco < f
 
