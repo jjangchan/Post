@@ -26,7 +26,49 @@
 
 ## 시간복잡도 , code
 
-**O(n)**
+**시간복잡도 = O(n)**
+
+```cpp
+#include <iostream>
+#include <string>
+#include <cmath>
+
+ int rabin_karp(const std::string& str, const std::string& pattern){
+    int pattern_length = pattern.length();
+    int str_hash = 0, pattern_hash = 0;
+    for(int i = 0; i < pattern_length; i++){
+        str_hash += (str[i]* (int)pow(2, pattern_length-1-i));
+        pattern_hash += (pattern[i]* (int)pow(2, pattern_length-1-i));
+    }
+    // start , 시간복잡도 = O(n)
+    for(int i = 0; i <= str.length()-pattern_length; i++){
+        if(str_hash == pattern_hash){
+            // verify
+            bool is = true;
+            for(int j = 0; j < pattern_length; j++){
+                if(pattern[j] != str[i+j]){
+                    is = false;
+                    break;
+                }
+            }
+            if(is) return i;
+        }else if(i != str.length()-pattern_length){
+            int first = str[i]* pow(2, pattern_length-1);
+            str_hash = 2*(str_hash-first)+str[i+pattern_length];
+        }
+    }
+    return -1;
+}
+
+int main() {
+    std::string str = "avsdasds2ddsavvbsda";
+    std::string patter = "2dd";
+    std::cout << rabin_karp(str, patter);
+    return 0;
+}
+```
+
+
 
 ​																			
 
