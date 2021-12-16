@@ -971,7 +971,7 @@ def MSE():
 def F():
     return MSB()/MSE()
 
-# 기각 ? 채택 ?
+# 기각 ?, 채택 ?
 def Presume(l):
     f = stats.f(col-1, col*(row-1)).ppf(l)
     fco = F()

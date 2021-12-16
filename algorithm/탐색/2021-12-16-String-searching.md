@@ -1,3 +1,23 @@
+
+
+# 라빈-카프(Rabin-Karp) 알고리즘
+
+해시를 활용한 문자열 검색,
+
+수식으로 구한 해쉬값을 한칸식 이동하면서 구하고 본문 해시 값과 패턴 해시 값이 같은지 여부를 확인
+
+해시 충돌시 이는 무시해도 되며 본문 해시와 패턴 해시 값이 같다면 실제 본문 값과 실제 패턴 값을 비교 확인
+
+
+
+## 수식 
+
+$$
+H[i] = S[i]*2^M-1 + 
+$$
+
+
+
 # KMP
 
 두개의 문자열 T(text) 와 P(pattern) 가 있다. P가 T에 대해서 __몇 번 매칭 되는지, 또한 어느 위치에서 시작하는지에__ 대한 '문자열 매칭' 알고리즘을 알아보자.
@@ -149,4 +169,14 @@ P = [A B C A B C A B C A]
 
 
 ```
+
+
+
+
+
+> 출처
+>
+> https://otrodevym.tistory.com/entry/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98%EB%AC%B8%EC%9E%90%EC%97%B4-%EA%B2%80%EC%83%89%EA%B3%A0%EC%A7%80%EC%8B%9D%ED%95%9C-%EA%B2%80%EC%83%89-%EB%9D%BC%EB%B9%88%EC%B9%B4%ED%94%84-KMP-%EB%B3%B4%EC%9D%B4%EC%96%B4%EB%AC%B4%EC%96%B4
+>
+> https://otrodevym.tistory.com/entry/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98%EB%AC%B8%EC%9E%90%EC%97%B4-%EA%B2%80%EC%83%89%EA%B3%A0%EC%A7%80%EC%8B%9D%ED%95%9C-%EA%B2%80%EC%83%89-%EB%9D%BC%EB%B9%88%EC%B9%B4%ED%94%84-KMP-%EB%B3%B4%EC%9D%B4%EC%96%B4%EB%AC%B4%EC%96%B4
 
