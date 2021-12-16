@@ -12,11 +12,23 @@
 
 ## 수식 
 
-$$
-H[i] = S[i]*2^M-1 + 
-$$
 
 
+![SCC3](../../img/rk1.JPG)
+
+한칸씩 이동할때마다 이동 전 맨 앞의 해시값을 빼주고 `2` 를 곱하고 이동 후 맨 뒤의  해시값을 더해주면 된다.
+
+`이동 후  = 2*(본문해시 - 이동 전 맨 앞 해시) + 이동 후 맨 뒤 해시값`
+
+
+
+
+
+## 시간복잡도 , code
+
+**O(n)**
+
+​																			
 
 # KMP
 
@@ -178,5 +190,7 @@ P = [A B C A B C A B C A]
 >
 > https://otrodevym.tistory.com/entry/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98%EB%AC%B8%EC%9E%90%EC%97%B4-%EA%B2%80%EC%83%89%EA%B3%A0%EC%A7%80%EC%8B%9D%ED%95%9C-%EA%B2%80%EC%83%89-%EB%9D%BC%EB%B9%88%EC%B9%B4%ED%94%84-KMP-%EB%B3%B4%EC%9D%B4%EC%96%B4%EB%AC%B4%EC%96%B4
 >
-> https://otrodevym.tistory.com/entry/%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98%EB%AC%B8%EC%9E%90%EC%97%B4-%EA%B2%80%EC%83%89%EA%B3%A0%EC%A7%80%EC%8B%9D%ED%95%9C-%EA%B2%80%EC%83%89-%EB%9D%BC%EB%B9%88%EC%B9%B4%ED%94%84-KMP-%EB%B3%B4%EC%9D%B4%EC%96%B4%EB%AC%B4%EC%96%B4
+> https://blog.naver.com/PostView.naver?blogId=ndb796&logNo=221240679247&redirect=Dlog&widgetTypeCall=true&directAccess=false
+>
+> 
 
