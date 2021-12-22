@@ -320,3 +320,93 @@ int main() {
 
 # 정렬되지 않은 셋과 맵(unordered_set, unordered_map)
 
+정렬이 되어 있지 않고 `insert`, `erase`, `find` 모두가 **O(1)** 으로 수행된다.
+
+
+
+## 1. 해쉬 함수 (Hash function)
+
+해쉬 함수란 임의의 크기의 데이터를 고정된 크기의 데이터로 대응시켜주는 함수이다. 고정된 크기의 데이터는 보통 일정 범위의 정수값을 의미한다.
+
+
+
+![stl2](../img/stl9.JPG)
+
+
+
+`unordered_set` 과 `unordered_map` 의 경우, 해시함수는 1부터 D까지(=상자의 수)까지의 값을 반환하고 그 해시값(해시 함수로 계산한 값)을 원소를 저장할 상자의 번호로 삼게 된다.
+
+해시 함수의 가장 중요한 성질은, 만약에 **같은 원소를 해시 함수에 전달한다면 같은 해시값을 리턴**한다는 점, 이 덕분에 원소의 탐색을 빠르게 수행할 수 있다.
+
+예를 들어 사용자가 파란공이 `unordered_set` 에 들어있는지 아닌지 확인하면, 파란공을 해시 함수에 대입하면 1을 리턴한다. 따라서 1번 상자를 살펴보면 파란공이 있는지 알 수 있다. 따라서 파란공은 `unordered_set` 에 이미 존재한다. 해시 함수가 해시값 계산을 상수 시간에 처리 하므로 따라서 `unordered_set` 과 `unordered_map` 모두 탐색을 상수 시간에 처리한다.
+
+
+
+만약 3번 처럼 다른 원소임에도 불구하고 같은 해시값을 갖는 경우에는 **해시 충돌(hash collision)** 이라고 한다. 만약 보라색 공이 셋에 포함되어있는지 확인하려면 먼저 보라색 공의 해시값을 계산하고 해당하는 상자에 있는 모든 원소들을 탐색해보아야한다. 이렇게 최악의 경우에는 탐색이 O(N) 으로 실행된다.
+
+결론적으로  `unordered_set` 과 `unordered_map` 의 경우 평균적으로 O(1) 시간으로 원소의 삽입/탐색을 수행할 수 있지만 최악의 경우 O(N) 으로 수행될 수 있다(그냥 `set` 과 `map` 의 경우 평균도 O(log N) 최악의 경우에도 O(log N) 으로 실행)
+
+이 때문에 보통의 경우에는 그냥 안전하게 맵이나 셋을 사용하고, 만약에 최적화가 매우 필요한 작업일 경우에만 해시 함수를 잘 설계해서 `unordered_set` 과 `unordered_map` 을 사용하는 것이 좋다.
+
+또한 처음부터 많은 개수의 상자를 사용할 수 없기 때문에(메모리낭비) 상자의 개수는 삽입되는 원소가 많아짐에 따라 점진적으로 늘어난다. 문제는 상자의 개수가 늘어나면 해시 함수를 바꿔야 하기 때문에(더 많은 값들을 해시값으로 반환할 수 있도록) 모든 원소들을 처음부터 끝 까지 다시 `insert` 해야한다. 이를 `rehash` 라고 하며 **O(N)** 의 시간이 걸린다.
+
+
+
+## 2. Big-O
+
+- `insert`, `erase`, `find` 평균적으로 **O(1)** 최악의 경우(hash collision)는 **O(N)**
+- `rehash` 되는 경우 **O(N)**  
+
+
+
+## 3. Class unordered
+
+unordered 타입을 class로 하려면 해시 함수를 직접 만들어줘야 한다. `operator==` 도 필요하다(해시 충돌 발생 시에 상자안에 있는 원소들과 비교를 해야하기 때문)
+
+
+
+### 해시 함수(hash function)
+
+```c++
+// Todo 해시 함수를 위한 함수객체(Functor)
+// 를 만들어줍니다!
+namespace std {
+template <>
+struct hash<Todo> {
+  size_t operator()(const Todo& t) const {
+    hash<string> hash_func;
+
+    return t.priority ^ (hash_func(t.job_desc));
+  }
+};
+}  // namespace std
+```
+
+C++ STL 에서는 기본적인 type(int, std::string 등)은  `hash` 함수로 해시값을 얻을수 있다. 또한, `hash` 클래스가 `namespace std` 안에 정의되어 있냐면 (이미 위에서 `using namespace std` 를 했음에도 불구하고), 특정 `namespace` 안에 새로운 클래스/함수를 추가하기 위해서는 위처럼 명시적으로 `namespace (이름)` 를 써줘야만 한다.
+
+
+
+마지막으로, 해시 충돌이 일어나면 방지하는 `operator==` 연산자를 마지막으로 추가해주면 된다.
+
+```c++
+bool operator==(const Todo& t) const {
+  if (priority == t.priority && job_desc == t.job_desc) return true;
+  return false;
+}
+```
+
+
+
+## 4. 효율적인 사용법
+
+- 데이터의 존재 유무 만 궁금할 경우 → `set`
+
+- 중복 데이터를 허락할 경우 → `multiset` (`insert, erase, find` 모두 O*(log*N*). 최악의 경우에도 *O*(log*N*))
+
+- 데이터에 대응되는 데이터를 저장하고 싶은 경우 → `map`
+
+- 중복 키를 허락할 경우 → `multimap` (`insert, erase, find` 모두 O*(log*N*). 최악의 경우에도 O*(log*N*))
+
+- 속도가 매우매우 중요해서 최적화를 해야하는 경우 → `unordered_set`, `unordered_map`
+
+  ([insert](https://modoocode.com/238), [erase](https://modoocode.com/240), [find](https://modoocode.com/261) 모두 O*(1). 최악의 경우엔 O*(*N*) 그러므로 해시함수와 상자 개수를 잘 설정해야 한다!)
