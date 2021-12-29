@@ -166,6 +166,10 @@ int main() {
 
 # 원소 탐색(find)
 
+
+
+## 1. find
+
 `find` 정의는 아래와 같다.
 
 ```c++
@@ -197,8 +201,74 @@ int main() {
 }
 ```
 
-주의해야 할 점은, 만약에 컨테이너에서 기본적으로 [find](https://modoocode.com/261)함수를 지원한다면 이를 사용하는 것이 훨씬 빠릅니다. 왜냐하면 알고리즘 라이브러리에서의 [find](https://modoocode.com/261) 함수는 그 컨테이너가 어떠한 구조를 가지고 있는지에 대한 정보가 하나도 없기 때문입니다.
+주의해야 할 점은, 만약에 컨테이너에서 기본적으로 [find](https://modoocode.com/261)함수를 지원한다면 이를 사용하는 것이 훨씬 빠르다. 왜냐하면 알고리즘 라이브러리에서의 [find](https://modoocode.com/261) 함수는 그 컨테이너가 어떠한 구조를 가지고 있는지에 대한 정보가 하나도 없기 때문이다
 
-예를 들어 `set` 의 경우, `set` 에서 사용하는 [find](https://modoocode.com/261) 함수의 경우 *O*(log*n*) 으로 수행될 수 있는데 그 이유는 셋 내부에서 원소들이 정렬되어 있기 때문입니다. 또 `unordered_set` 의 경우 [find](https://modoocode.com/261) 함수가 *O*(1) 로 수행될 수 있는데 그 이유는 `unordered_set` 내부에서 자체적으로 해시 테이블을 이용해서 원소들을 빠르게 탐색해 나갈 수 있기 때문입니다.
+예를 들어 `set` 의 경우, `set` 에서 사용하는 [find](https://modoocode.com/261) 함수의 경우 *O*(log*n*) 으로 수행될 수 있는데 그 이유는 셋 내부에서 원소들이 정렬되어 있기 때문이다. 또 `unordered_set` 의 경우 [find](https://modoocode.com/261) 함수가 *O*(1) 로 수행될 수 있는데 그 이유는 `unordered_set` 내부에서 자체적으로 해시 테이블을 이용해서 원소들을 빠르게 탐색해 나갈 수 있기 때문이다.
 
-하지만 그냥 알고리즘 라이브러리의 [find](https://modoocode.com/261) 함수의 경우 이러한 추가 정보가 있는 것을 하나도 모른채 우직하게 처음 부터 하나 씩 확인해 나가므로 평범한 *O*(*n*) 으로 처리됩니다. 따라서 알고리즘 라이브러리의 [find](https://modoocode.com/261) 함수를 사용할 경우 벡터와 같이 기본적으로 [find](https://modoocode.com/261) 함수를 지원하지 않는 컨테이너에 사용해야 한다.
+하지만 그냥 알고리즘 라이브러리의 [find](https://modoocode.com/261) 함수의 경우 이러한 추가 정보가 있는 것을 하나도 모른채 우직하게 처음 부터 하나 씩 확인해 나가므로 평범한 *O*(*n*) 으로 처리된다. 따라서 알고리즘 라이브러리의 [find](https://modoocode.com/261) 함수를 사용할 경우 벡터와 같이 기본적으로 [find](https://modoocode.com/261) 함수를 지원하지 않는 컨테이너에 사용해야 한다.
+
+
+
+## 2. find_if
+
+`find` 에 함수객체를 인자로 받아서 `return` 값이 참인걸 찾는다.
+
+```cpp
+include <iostream>
+#include <vector>
+#include <algorithm>
+
+int main() {
+    std::vector<int> v = {3,5,3,1,3,9,10};
+    auto iter_find = v.begin();
+    while(true){
+        iter_find = std::find_if(iter_find, v.end(),
+                     [](const int i)->bool{
+                         if(i%3 == 0) return true;
+                         return false;
+                     });
+        if(iter_find == v.end()) break;
+        std::cout << *iter_find << " % 3 = 0" << std::endl;
+        iter_find++;
+
+    }
+
+    return 0;
+}
+```
+
+
+
+## 3. any_of, all_of
+
+`any_of` 는 인자로 받은 범위안의 모든 원소들 중 조건이 하나라도 만족하면 `true` 를 리턴하고, `all_of`는 모든 원소들이 만족해야 `true` 를 리턴한다.
+
+즉, `any_of` 는 `OR` 연산과 비슷하고 `all_of`는 `AND` 연산과 비슷하다.
+
+
+
+```c++
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+int main() {
+    std::vector<int> v = {11,20,22,400,500,9,10};
+
+    // 모든 원소가 10 이상? 
+    std::cout << std::all_of(v.begin(), v.end(),
+                             [](const int i)->bool{
+                                 if(i >= 10) return true;
+                                 return false;
+    }) << std::endl; // => false
+    // 원소 중에 10 이하가 있는가?
+    std::cout << std::any_of(v.begin(), v.end(),
+                             [](const int i)->bool{
+                                 if(i <= 10) return true;
+                                 return false;
+    }) << std::endl; // => true
+
+    return 0;
+}
+```
+
