@@ -195,3 +195,10 @@ libc++abi: terminating with uncaught exception of type std::__1::bad_weak_ptr: b
 constructor
 ```
 
+
+
+
+
+> 출처
+>
+> https://modoocode.com/135

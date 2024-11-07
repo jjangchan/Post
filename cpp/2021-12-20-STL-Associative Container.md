@@ -410,3 +410,11 @@ bool operator==(const Todo& t) const {
 - 속도가 매우매우 중요해서 최적화를 해야하는 경우 → `unordered_set`, `unordered_map`
 
   ([insert](https://modoocode.com/238), [erase](https://modoocode.com/240), [find](https://modoocode.com/261) 모두 O*(1). 최악의 경우엔 O*(*N*) 그러므로 해시함수와 상자 개수를 잘 설정해야 한다!)
+
+
+
+
+
+> 출처
+>
+> https://modoocode.com/135
