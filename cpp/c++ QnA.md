@@ -117,3 +117,387 @@ a가 역참조된 변수에 레지스터에 `add`연산자로 1을 더하기전�
 
 
 ![iostream1](../img/tread1.PNG)
+
+
+
+## Intrusive set 사용이유
+
+`std::set`은 각 노드를 별도로 동적 할당하기 때문에 삽입/삭제 시 allocator 비용이 발생하고 노드와 객체가 분리되어 있어 메모리 접근 시 캐시 효율이 떨어질 수 있다.
+
+```c++
+std::set
+    │
+    ├── new Node
+    │      ├── left
+    │      ├── right
+    │      ├── parent
+    │      └── Websocket
+    │
+    ├── new Node
+    ├── new Node
+    └── ...
+```
+
+
+
+ 반면 `boost::intrusive::set`은 객체 내부의 `set_member_hook`이 RB Tree 노드 역할을 하므로 별도의 노드 할당이 필요 없고, 노드와 객체가 동일한 메모리 블록에 존재해 메모리 지역성이 더 좋아질 수 있습니다. 따라서 저지연이 중요한 서버나 HFT 환경에서 자주 사용된다.
+
+ ```c++
+Websocket 객체
+
++-----------------------+
+| hook (RBTree Node)    |
++-----------------------+
+| socket                |
+| id                    |
+| ...                   |
++-----------------------+
+
+class Websocket
+{
+    set_member_hook<> hook; // --> RBTree Node... 1 set by 1 hook
+    ...
+};
+ ```
+
+
+
+## lock-free queue 를 사용해야하는 이유
+
+현재 내가 구현한 암호화폐거래소의 큰 문제점은 병목현상이 발생하면 `Boost.Asio` 가  `kernel Socket Buffer` 에 계속 쌓아놓는걸 빠르게 처리하지 못해서 지연이 발생한다.
+
+```markdown
+Exchange
+    │
+    ▼
+Kernel Socket Buffer
+```
+
+ `kernel Socket Buffer` 가 꽉 차면 TCP Flow Control이 발생하거나 최악의 경우 상대방이 연결을 끊을 수도 있다.
+
+병목현상이 최대한 줄이는 방식으로 설계를 해야하는데 지금 코드는 **같은 WebSocket에서는 항상 하나의 read만 outstanding** 를 하지 않는다.
+
+```c++
+void start_read()
+{
+    w_socket.async_read(
+        buffer,
+        std::bind(&Websocket::ws_on_read,
+                  shared_from_this(),
+                  _1, _2));
+}
+
+void ws_on_read(error_code ec, std::size_t bytes)
+{
+    // 1. JSON 파싱
+
+    // 2. 전략 실행
+    strategy->on_tick(...);
+
+    // 3. 다음 read 등록
+    start_read();
+}
+```
+
+29ms 동안 여러개의 틱이  도착한다면...
+
+```markdown
+t = 0ms    Tick1 도착
+t = 1ms    Tick2 도착
+t = 2ms    Tick3 도착
+.
+.
+.
+.
+t = 29ms   TickN 도착
+```
+
+2번 전략 실행 함수 `on_tick()` 에서 30ms 발생하면 N개의 Tick 신호가 버퍼에 쌓이면서 수신 처리량을 견더내지 못해 지연되게 된다. 
+
+해결 방법은 네트워크 I/O 와 전략 로직을 분리해서 `SPSC lock-free queue` 로 관리해야한다. 
+
+```
+WebSocket Thread
+----------------------------
+async_read
+    │
+JSON Parse
+    │
+Lock-Free Queue에 Push
+    │
+async_read() 즉시 재등록
+----------------------------
+
+Strategy Thread
+----------------------------
+Queue Pop
+    │
+Indicator 계산
+    │
+Order 생성
+----------------------------
+```
+
+> "초기에는 `async_read` 콜백에서 바로 전략을 수행했는데, 전략 처리 시간이 길어지면 다음 `async_read` 등록이 늦어져 OS 소켓 버퍼에 데이터가 누적되고, 이후 틱이 한꺼번에 처리되는 현상을 경험했습니다. 이를 통해 네트워크 I/O와 전략 처리를 분리해야 한다는 점을 이해했습니다."
+
+### 어떻게 Lock-free queue 를 설계해야하는가
+
+단일 생성자 쓰레드(네트워크) 는 항상 틱 신호를 `push` 한다. 단일 소비자 쓰레드(전략) 는 항상 틱 신호를 `pop` 한다. 이점을 이용해서 SPSC lock-free queue 를 구현해보자.
+
+```c++
+//
+// Created by jjangchan on 2026/07/27.
+//
+
+#ifndef MAIN_CPP_MYSPSCLOCKFREEQUEUE_H
+#define MAIN_CPP_MYSPSCLOCKFREEQUEUE_H
+#include <iostream>
+#include <array>
+#include <atomic>
+#include <algorithm>
+
+template<typename T, std::size_t size>
+class SPSCLockFreeQueue{
+    static_assert(
+            size != 0 && (size & (size - 1)) == 0,
+            "Size must be a power of two."
+    );
+private:
+    std::array<T, size> q;
+    alignas(64) std::atomic<std::size_t> head{0};
+    alignas(64) std::atomic<std::size_t> tail{0};
+
+public:
+    SPSCLockFreeQueue(){}
+
+    explicit SPSCLockFreeQueue(const std::array<T, size>& buffer){
+        for(int i = 0; i < buffer.size(); i++) q[i] = buffer[i];
+    }
+
+    explicit SPSCLockFreeQueue(const SPSCLockFreeQueue& q) = delete;
+
+public:
+    bool push(T&& data){
+        std::size_t new_tail = tail.load(std::memory_order_relaxed);
+
+        std::size_t next_tail = (new_tail+1) & (size-1);
+        if(next_tail == head.load(std::memory_order_acquire))
+            return false; // 큐 꽉참...
+
+        q[new_tail] = std::move(data);
+
+        tail.store(next_tail, std::memory_order_release);
+
+        return true;
+    }
+
+    bool pop(T& data){
+        std::size_t new_head = head.load(std::memory_order_relaxed);
+
+        if(new_head == tail.load(std::memory_order_acquire))
+            return false; // Empty...
+
+        data = std::move(q[new_head]);
+
+        head.store((new_head+1) & (size-1),
+                   std::memory_order_release);
+
+        return true;
+
+    }
+
+};
+
+#endif //MAIN_CPP_MYSPSCLOCKFREEQUEUE_H
+
+```
+
+#### 1. 쓰기는 생성자-소비자 끼리 중복되지 않고 1개의 연산으로 원자적 처리
+
+ ```c++
+std::atomic<size_t> tail;
+std::atomic<size_t> head;
+ ```
+
+- Producer가 `tail`을 **쓰기(write)** 연산만 사용
+
+```c++
+tail.store(next_tail, std::memory_order_release);
+```
+
+- Consumer가 `head`를 **쓰기(write)**  연산만 사용 
+
+ ``` c++
+head.store((new_head+1) & (size-1), std::memory_order_release);
+ ```
+
+- Producer가 `head`를 **읽기(read)** 연산만 사용
+
+ ``` c++
+if(next_tail == head.load(std::memory_order_acquire))
+	return false; // 큐 꽉참...
+ ```
+
+- Consumer가 `tail`을 **읽기(read)** 연산만 사용
+
+ ```c++
+if(new_head == tail.load(std::memory_order_acquire))
+	return false; // Empty...
+ ```
+
+
+
+#### 2. 거짓공유(False Sharing) 방지
+
+   생성자 , 소비자 쓰레드가 cpu 각 코어 에 배치된다면..
+
+```
+Core 0                     Core 1
+
+Producer                   Consumer
+
+push()                     pop()
+
+push()                     pop()
+
+push()                     pop()
+```
+
+두 스레드가 **진짜 동시에** 실행
+
+- Producer는 계속 데이터를 생성
+- Consumer는 계속 데이터를 소비
+
+하면서 Lock-Free Queue의 장점을 최대한 활용할 수 있다.
+
+문제점은 각 코어마다  64byte `Caching line` 를 통째로 가져와서 읽으므로.. 만약 `tail` 또는 `read` 값이 변경된다면 MESI 프로토콜에 의하여 캐시 일관성 비용이 든다.
+
+>MESI 프로토콜 4가지 상태
+>
+>- **Modified (M)**: 데이터가 수정된 상태이며, 메인 메모리와 값이 다릅니다. 이 캐시만 최신 값을 가집니다.
+>- **Exclusive (E)**: 데이터가 이 캐시에만 존재하며, 메인 메모리 값과 완벽히 일치합니다.
+>- **Shared (S)**: 여러 코어의 캐시가 이 데이터를 똑같이 가지고 있으며, 메인 메모리도 최신 상태입니다.
+>- **Invalid (I)**: 캐시 라인에 유효한 데이터가 들어있지 않아 사용할 수 없는 상태입니다. 
+>
+>예시)
+>
+>CPU1이 메모리 A를 읽음 -> 캐시에 없음 -> 메인 메모리에서 읽어옴 -> 상태는 E
+>
+>CPU2도 A를 읽음 -> CPU1의 A는 S, CPU2의 A도 S
+>
+>CPU2가 A를 씀 -> CPU1의 A는 I, CPU2의 A는 M
+>
+>CPU1이 다시 A를 읽음 -> CPU2로부터 snooping통해 data 받음 -> 둘다 S
+
+ 이러한 문제점을 해결하기 위해서는 c++ `alignas(64)` 로 캐싱라인에 할당한 변수만 보관하고 나머지는 `padding` 시킨다
+
+```c++
+alignas(64) std::atomic<std::size_t> head{0};
+alignas(64) std::atomic<std::size_t> tail{0};
+
+0x1000, core 0  Caching line (64Byte)
++---------------------------+
+| head | padding....        |
++---------------------------+
+
+0x1040, core 1  Caching line (64Byte)
++---------------------------+
+| tail | padding....        |
++---------------------------+
+      (64Byte)
+```
+
+하지만 alignas(64)을 남발하면 안된다.  Cache Line Padding의 Trade-off 문제가 있다.
+
+L1 캐시 크기는 코어당 보통 **32KB~128KB** 으로 되어있다. padding 된 Cash Line을 L1 캐시에 저장할 수 있는 단위가 작어지면서 오히려 Cache Miss가 증가할 수도 있다. 따라서 
+
+① 같이 사용하는 데이터 같은 Cache Line에 묶고
+
+② 서로 다른 코어가 수정하는 데이터 분리해서 False Sharing을 막아야 한다.
+
+
+
+#### 3. 생성자-소비자 동기화(memory order)
+
+- **Release**: *이전의 메모리 접근*이 Release 뒤로 넘어가 다른 스레드에서 관측되지 않도록 보장.
+
+```c++
+std::size_t new_tail = tail.load(std::memory_order_relaxed);
+
+q[new_tail] = std::move(data);
+
+tail.store(next_tail, std::memory_order_release); // store -> load 순으로 관측되지 않도록 보장.
+```
+
+- **Acquire**: *이후의 메모리 접근*이 Acquire 앞으로 당겨져 관측되지 않도록 보장.
+
+```c++
+Producer
+
+buffer 작성 완료
+
+↓
+
+tail.store(release)
+
+======================
+
+tail.load(acquire)
+
+↓
+
+Consumer
+
+buffer 읽기
+```
+
+이 순서가 강제됩니다.
+
+즉
+
+**Consumer는 `tail`을 확인하기 전에는 `buffer`를 읽을 수 없다.
+
+그래서
+
+- Producer가 데이터를 다 써놓고
+- "준비 완료"(`tail.store(release)`)를 알린 뒤에만
+- Consumer가 데이터를 읽는다.
+
+만약 관측이 보장되지 않고 재배치 된다면 이슈는,
+
+* **미리 읽어 둔 오래된 값이나 미완성 데이터를 사용**하게 된다.
+
+즉 **다른 스레드가 관측하는 순서(visibility)를 보장**하는 것이 핵심이다.
+
+
+
+#### 4. ring buffer(비트연산)
+
+`tail`, `head` 에 인덱스를 증가시키는 방법으로 지정 사이즈가 초과되면 다시 0 으로 돌아간다.
+
+```c++
+(new_tail+1) & (size-1)
+
+taile = 7, size = 8   
+
+  1000 --> 7 + 1
+& 0111 --> 8 - 1
+  0000 --> 0 인덱스로 순환
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
